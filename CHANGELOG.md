@@ -1,5 +1,9 @@
 ## next:
+
+## 0.3.1:
 - add icon, concept by Dribbleondo
+- fix "Expanded weapon rotation" in settings menu
+
 
 ## 0.3.0:
 - added config menu for SkinLib features (russian translation by Punished Bernadetta)
