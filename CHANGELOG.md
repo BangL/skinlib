@@ -1,5 +1,8 @@
 ## next:
 
+## 0.3.2:
+- fix overwriting wrong hud icon when applying weapon skins
+
 ## 0.3.1:
 - add icon, concept by Dribbleondo
 - fix "Expanded weapon rotation" in settings menu

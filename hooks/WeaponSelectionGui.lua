@@ -7,13 +7,8 @@ Hooks:PostHook(WeaponSelectionGui, "_on_apply_weapon_skin", "SkinLib.WeaponSelec
         local primary = managers.weapon_inventory:get_equipped_primary_weapon_id()
         local secondary = managers.weapon_inventory:get_equipped_secondary_weapon_id()
         local grenade = managers.weapon_inventory:get_equipped_grenade_id()
-        local slots = {
-            [2] = 1, -- primary
-            [1] = 2, -- secondary
-            [3] = 3  -- grenades
-        }
         local weapon_id = tweak_data.weapon.weapon_skins[item.skin_id] and tweak_data.weapon.weapon_skins[item.skin_id].weapon_id or self._SL_weapon_id
-        local slot = slots[self._selected_weapon_category_id]
+        local slot = self._selected_weapon_category_id
         if weapon_id and (weapon_id == primary or weapon_id == secondary or weapon_id == grenade) then -- check for valid weapon_id and if weapon is equipped
             if tweak_data.weapon.weapon_skins[item.skin_id] and tweak_data.weapon.weapon_skins[item.skin_id].hud_icon then -- check for custom hud icon and apply
                 managers.hud._weapon_panels[slot]._icon:set_image(
