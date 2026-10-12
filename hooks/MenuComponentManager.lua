@@ -38,7 +38,7 @@ function SkinLibMenu:Init(root)
     self:Toggle({
         name = "ExpandWeaponRotation",
         text = "menu_skinlib_expandweaponrotation",
-        value = SkinLib.settings.CustomHudIcon,
+        value = SkinLib.settings.ExpandWeaponRotation,
         callback = callback(self, self, "change_clbk", {type = "ExpandWeaponRotation", toogle = true}),
         desc = "menu_skinlib_expandweaponrotation_desc",
         auto_select_on_hover = true
