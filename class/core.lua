@@ -5,11 +5,7 @@ SkinLib._skins = {}
 SkinLib._injected_skins = {}
 SkinLib._parts = {}
 SkinLib._injected_parts = {}
-SkinLib.version = {
-    major = 0,
-    minor = 3,
-    patch = 2
-}
+SkinLib._version = ModInstance and tostring(ModInstance:GetVersion()) or "0.0.0"
 SkinLib.default_settings = {
     Debug = false,
     ForceCosmeticParts = true,
@@ -369,17 +365,9 @@ end
 ---@param patch integer
 ---@return boolean
 function SkinLib.RequireVersion(major, minor, patch)
-    local ret = false
-    if major <= SkinLib.version.major then
-        ret = true
-    end
-    if minor <= SkinLib.version.minor or ret == true then
-        ret = true
-    end
-    if patch <= SkinLib.version.patch or ret == true then
-        ret = true
-    end
-    return ret
+    local required = string.format("%d.%d.%d", major or 0, minor or 0, patch or 0)
+
+    return BLT:CompareVersions(SkinLib._version, required) ~= 2
 end
 
 ---Turns weapon_id into associated factory_id
