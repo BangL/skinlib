@@ -383,3 +383,74 @@ end
 function SkinLib.factoryid2weaponid(factory_id)
     return SkinLib.weapon_tbl_reversed[factory_id] or false
 end
+
+
+---Returns the applied skin id for factory_id, if it is a SkinLib (custom) skin
+---@param factory_id string
+---@return string|nil
+function SkinLib.get_applied_custom_skin(factory_id)
+    if not (managers.weapon_inventory and factory_id) then
+        return nil
+    end
+    local skin_id, skin_data = managers.weapon_inventory:get_applied_weapon_skin(factory_id)
+    if skin_id and skin_data and skin_data.custom then
+        return skin_id
+    end
+    return nil
+end
+
+---Builds the synced cosmetics string for weapons: "<skin_id>", plus "!" if ForceCosmeticParts is on
+---@param skin_id string
+---@return string
+function SkinLib.make_cosmetics_string(skin_id)
+    return SkinLib.settings.ForceCosmeticParts and (skin_id .. "!") or skin_id
+end
+
+---Parses a synced cosmetics string ("<skin_id>" or "<skin_id>!")
+---and returns the skin id and the sender's ForceCosmeticParts setting, if it is a custom skin that is valid for factory_id (npc or not).
+---Returns nil if the skin is unknown locally, so peers without the same skin see the default.
+---@param cosmetics_string string|nil
+---@param factory_id string
+---@return string|nil, boolean|nil
+function SkinLib.get_synced_custom_skin(cosmetics_string, factory_id)
+    if type(cosmetics_string) ~= "string" or cosmetics_string == "" then
+        return nil
+    end
+    local skin_id = cosmetics_string:match("^(.+)!$")
+    local force_parts = skin_id ~= nil
+    skin_id = skin_id or cosmetics_string
+    local skin = tweak_data.weapon.weapon_skins[skin_id]
+    if not (skin and skin.custom and skin.replaces_parts) then
+        return nil
+    end
+    if SkinLib.factoryid2weaponid((factory_id:gsub("_npc$", ""))) ~= skin.weapon_id then
+        return nil
+    end
+    for _, replacement in pairs(skin.replaces_parts) do
+        if not tweak_data.weapon.factory.parts[replacement] then
+            return nil
+        end
+    end
+    return skin_id, force_parts
+end
+
+---Applies force_cosmetic_parts of a skin to a blueprint (base part -> replacement, "" removes it)
+---@param blueprint table
+---@param skin_data table|nil
+---@return table
+function SkinLib.apply_force_cosmetic_parts(blueprint, skin_data)
+    local replaces = skin_data and skin_data.force_cosmetic_parts
+    if not replaces then
+        return blueprint
+    end
+    local result = {}
+    for _, part in ipairs(blueprint) do
+        local replacement = replaces[part]
+        if replacement == nil then
+            table.insert(result, part)
+        elseif replacement ~= "" then
+            table.insert(result, replacement)
+        end
+    end
+    return result
+end

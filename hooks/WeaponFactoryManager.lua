@@ -64,6 +64,11 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
             end
             -- insert into uses_parts
             table.insert(tweak_data.weapon.factory[part.params.weapon_factory_id].uses_parts, part.params.part_id)
+            -- the npc factory is a clone made before our injection, so peers need the part too
+            local npc_factory = tweak_data.weapon.factory[part.params.weapon_factory_id .. "_npc"]
+            if npc_factory then
+                table.insert(npc_factory.uses_parts, part.params.part_id)
+            end
 
             -- insert part
             tweak_data.weapon.factory.parts[part.params.part_id] = deep_clone(tweak_data.weapon.factory.parts[part.params.base_part])
@@ -131,22 +136,8 @@ end)
 ---@diagnostic disable-next-line: duplicate-set-field
 function WeaponFactoryManager:assemble_from_blueprint(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
     if SkinLib.settings.ForceCosmeticParts then
-        local custom_blueprint = clone(blueprint)
-        local skin_id = managers.weapon_inventory:get_applied_weapon_skin(factory_id)
-        if SkinLib.settings.ForceCosmeticParts and skin_id and tweak_data.weapon.weapon_skins[skin_id].force_cosmetic_parts then
-            for base, replace in pairs(tweak_data.weapon.weapon_skins[skin_id].force_cosmetic_parts) do
-                for index, part in ipairs(blueprint) do
-                    if part == base then
-                        if replace ~= "" then
-                            custom_blueprint[index] = replace
-                        else
-                            table.remove(custom_blueprint, index)
-                        end
-                    end
-                end
-            end
-            return self:_assemble(factory_id, p_unit, custom_blueprint, third_person, done_cb, skip_queue)
-        end
+        local _, skin_data = managers.weapon_inventory:get_applied_weapon_skin(factory_id)
+        blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, skin_data)
     end
     return self:_assemble(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
 end
