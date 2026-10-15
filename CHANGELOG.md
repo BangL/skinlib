@@ -1,4 +1,5 @@
 ## next:
+- use xml version for SkinLib.RequireVersion()
 
 ## 0.3.2:
 - fix overwriting wrong hud icon when applying weapon skins
