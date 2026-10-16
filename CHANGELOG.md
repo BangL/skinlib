@@ -1,4 +1,6 @@
 ## next:
+
+## 0.4.0:
 - implement showing other players
 - use xml version for SkinLib.RequireVersion()
 
