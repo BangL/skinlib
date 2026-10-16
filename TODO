@@ -2,7 +2,6 @@ DOC comment examples
 DOC write step-by-step guide
 
 IMP/TEST melee overwrites
-IMP sync skins in mp to peers who also have them
 IMP sound override for skins
 IMP animation override for skins
 

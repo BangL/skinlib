@@ -28,6 +28,8 @@
         <post hook_id="lib/managers/weaponfactorymanager" script_path="hooks/WeaponFactoryManager.lua" /> 
         <!-- prevent broken weapons for peers -->
         <post hook_id="lib/units/beings/player/playerinventory" script_path="hooks/PlayerInventory.lua" /> 
+        <!-- apply synced skins of peers -->
+        <post hook_id="lib/units/beings/player/huskplayerinventory" script_path="hooks/HuskPlayerInventory.lua" />
         <!-- adds roll rotation on weapon preview -->
         <post hook_id="lib/managers/menu/raid_menu/controls/raidguicontrolrotateunit" script_path="hooks/RaidGUIControlRotateUnit.lua" />
         <!-- hotfix for vanilla crash -->
