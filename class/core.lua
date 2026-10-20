@@ -13,6 +13,7 @@ SkinLib.default_settings = {
     ExpandWeaponRotation = true,
 }
 SkinLib.settings = clone(SkinLib.default_settings)
+SkinLib._preview_skin_enabled = false
 
 SkinLib.weapon_tbl = {
     -- secondaries

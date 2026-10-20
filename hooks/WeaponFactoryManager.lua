@@ -137,7 +137,7 @@ end)
 function WeaponFactoryManager:assemble_from_blueprint(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
     if SkinLib.settings.ForceCosmeticParts then
         local skin_data
-        if SkinLib._preview_skin_id then
+        if SkinLib._preview_skin_enabled and SkinLib._preview_skin_id then
             skin_data = tweak_data.weapon.weapon_skins[SkinLib._preview_skin_id]
         else
             _, skin_data = managers.weapon_inventory:get_applied_weapon_skin(factory_id)
