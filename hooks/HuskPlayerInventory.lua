@@ -1,6 +1,7 @@
 -- remember the synced skin id, as the original discards it for primary/secondary weapons.
 -- for throwables, drop ids we can't use (unknown skin, wrong item, missing unit), so vanilla falls back to the default unit.
 local synch_equipped_weapon_original = HuskPlayerInventory.synch_equipped_weapon
+---@diagnostic disable-next-line: duplicate-set-field
 function HuskPlayerInventory:synch_equipped_weapon(send_equipped_weapon_type, equipped_weapon_category_id, equipped_weapon_identifier, blueprint_string, cosmetics_string, peer)
 	self._skinlib_cosmetics_string = nil
 
@@ -25,11 +26,12 @@ Hooks:PreHook(HuskPlayerInventory, "_clbk_weapon_add", "SkinLib.HuskPlayerInvent
 end)
 
 local add_unit_by_factory_name_original = HuskPlayerInventory.add_unit_by_factory_name
+---@diagnostic disable-next-line: duplicate-set-field
 function HuskPlayerInventory:add_unit_by_factory_name(factory_name, equip, instant, blueprint_string, cosmetics_string)
 	local synced = self._skinlib_cosmetics_string
 	self._skinlib_cosmetics_string = nil
 
-	local skin_id, _ = SkinLib.get_synced_custom_skin(synced, factory_name)
+	local skin_id = SkinLib.get_synced_custom_skin(synced, factory_name)
 	if not skin_id then
 		return add_unit_by_factory_name_original(self, factory_name, equip, instant, blueprint_string, cosmetics_string)
 	end
