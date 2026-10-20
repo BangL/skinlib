@@ -1,4 +1,6 @@
 ## next:
+- restore sender's ForceCosmeticParts setting for other players' weapons (reverts part of 0.4.1 fix)
+- fix skin preview in the skin selection menu using the force_cosmetic_parts of the applied instead of the previewed skin
 
 ## 0.4.1:
 - fix only forced parts updating when previewing in the skin selection menu

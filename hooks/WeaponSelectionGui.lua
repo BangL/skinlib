@@ -80,3 +80,12 @@ function WeaponSelectionGui:_weapon_skins_data_source()
 
 	return t2
 end
+
+-- the skin preview assembles with the previewed skin, not the applied one, so tell WeaponFactoryManager:assemble_from_blueprint which skin to force parts of.
+Hooks:PreHook(WeaponSelectionGui, "_preload_blueprint_completed", "SkinLib.WeaponSelectionGui._preload_blueprint_completed", function (self, params)
+    SkinLib._preview_skin_id = params and params.weapon_skin_id
+end)
+
+Hooks:PostHook(WeaponSelectionGui, "_preload_blueprint_completed", "SkinLib.WeaponSelectionGui._preload_blueprint_completed.reset", function (self)
+    SkinLib._preview_skin_id = nil
+end)

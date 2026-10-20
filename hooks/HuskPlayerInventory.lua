@@ -31,14 +31,16 @@ function HuskPlayerInventory:add_unit_by_factory_name(factory_name, equip, insta
 	local synced = self._skinlib_cosmetics_string
 	self._skinlib_cosmetics_string = nil
 
-	local skin_id = SkinLib.get_synced_custom_skin(synced, factory_name)
+	local skin_id, force_parts = SkinLib.get_synced_custom_skin(synced, factory_name)
 	if not skin_id then
 		return add_unit_by_factory_name_original(self, factory_name, equip, instant, blueprint_string, cosmetics_string)
 	end
 
 	local blueprint = managers.weapon_factory:unpack_blueprint_from_string(factory_name, blueprint_string)
 	blueprint = managers.weapon_factory:modify_skin_blueprint(factory_name, blueprint, skin_id)
-	blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, tweak_data.weapon.weapon_skins[skin_id])
+	if force_parts then
+		blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, tweak_data.weapon.weapon_skins[skin_id])
+	end
 
 	return self:add_unit_by_factory_blueprint(factory_name, equip, instant, blueprint)
 end
