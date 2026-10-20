@@ -1,5 +1,8 @@
 ## next:
 
+# 0.4.3:
+- reworked preview crash fix
+
 ## 0.4.2:
 - restore sender's ForceCosmeticParts setting for other players' weapons (reverts part of 0.4.1 fix)
 - fix skin preview in the skin selection menu using the force_cosmetic_parts of the applied instead of the previewed skin
