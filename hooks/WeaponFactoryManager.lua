@@ -133,16 +133,20 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
 end)
 
 
+-- the forced replacement parts must be preloaded too, else assembling spawns parts whose units are not loaded (engine crash)
+local preload_blueprint_original = WeaponFactoryManager.preload_blueprint
+---@diagnostic disable-next-line: duplicate-set-field
+function WeaponFactoryManager:preload_blueprint(factory_id, blueprint, third_person, done_cb, only_record)
+    if SkinLib.settings.ForceCosmeticParts then
+        blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, SkinLib.get_force_skin_data(factory_id))
+    end
+    return preload_blueprint_original(self, factory_id, blueprint, third_person, done_cb, only_record)
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function WeaponFactoryManager:assemble_from_blueprint(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
     if SkinLib.settings.ForceCosmeticParts then
-        local skin_data
-        if SkinLib._preview_skin_enabled and SkinLib._preview_skin_id then
-            skin_data = tweak_data.weapon.weapon_skins[SkinLib._preview_skin_id]
-        else
-            _, skin_data = managers.weapon_inventory:get_applied_weapon_skin(factory_id)
-        end
-        blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, skin_data)
+        blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, SkinLib.get_force_skin_data(factory_id))
     end
     return self:_assemble(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
 end
