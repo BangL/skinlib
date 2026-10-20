@@ -1,6 +1,9 @@
 ## next:
+
+## 0.4.2:
 - restore sender's ForceCosmeticParts setting for other players' weapons (reverts part of 0.4.1 fix)
 - fix skin preview in the skin selection menu using the force_cosmetic_parts of the applied instead of the previewed skin
+- fix rare crash happening when previewing a weapon with a skin applied
 
 ## 0.4.1:
 - fix only forced parts updating when previewing in the skin selection menu
@@ -16,7 +19,6 @@
 ## 0.3.1:
 - add icon, concept by Dribbleondo
 - fix "Expanded weapon rotation" in settings menu
-
 
 ## 0.3.0:
 - added config menu for SkinLib features (russian translation by Punished Bernadetta)
