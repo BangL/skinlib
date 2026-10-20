@@ -59,8 +59,15 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
                     unique_materials = SkinLib._add_unique_material(unique_materials, name)
                 end
             else
-                -- use fps as tps
-                m_tps = m_fps
+                -- use fps as tps, the third person model names its materials wpn_third_* instead of wpn_fps_*
+                for name, textures in pairs(m_fps) do
+                    m_tps[name] = textures
+                    local third_name = (name:gsub("^wpn_fps_", "wpn_third_"))
+                    if third_name ~= name then
+                        m_tps[third_name] = textures
+                        unique_materials = SkinLib._add_unique_material(unique_materials, third_name)
+                    end
+                end
             end
             -- insert into uses_parts
             table.insert(tweak_data.weapon.factory[part.params.weapon_factory_id].uses_parts, part.params.part_id)
@@ -96,6 +103,7 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
             -- custom fields for our network code
             tweak_data.weapon.factory.parts[part.params.part_id].custom = true
             tweak_data.weapon.factory.parts[part.params.part_id].base_part = part.params.base_part
+            tweak_data.weapon.factory.parts[part.params.part_id].tps_provided = part.params.tps ~= nil
 
             SkinLib._set_injected_part(id)
         end
@@ -145,8 +153,41 @@ end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function WeaponFactoryManager:assemble_from_blueprint(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
+    -- ready up: the weapon of another player gets the skin it told us about instead of ours
+    local peer = SkinLib._ready_up_peer
+    SkinLib._ready_up_peer = nil
+    local skin_id
+    if peer then
+        if peer:id() ~= managers.network:session():local_peer():id() then
+            local force_parts
+            skin_id, force_parts = SkinLib.get_synced_custom_skin(SkinLib.get_peer_skin(peer:id(), factory_id), factory_id)
+            if skin_id then
+                blueprint = self:modify_skin_blueprint(factory_id, blueprint, skin_id)
+                if force_parts then
+                    blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, tweak_data.weapon.weapon_skins[skin_id])
+                end
+            end
+            return self:_assemble_ready_up(peer, skin_id, factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
+        end
+        skin_id = SkinLib.get_applied_custom_skin(factory_id)
+    end
+
     if SkinLib.settings.ForceCosmeticParts then
         blueprint = SkinLib.apply_force_cosmetic_parts(blueprint, SkinLib.get_force_skin_data(factory_id))
     end
+    if peer then
+        return self:_assemble_ready_up(peer, skin_id, factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
+    end
+    return self:_assemble(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
+end
+
+-- the ready up screen puts the parts on the first person weapon unit. a custom skin without third person materials only fits the first person
+-- parts, so such a weapon is built from them there.
+function WeaponFactoryManager:_assemble_ready_up(peer, skin_id, factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
+    if skin_id and SkinLib.skin_lacks_tps(skin_id) then
+        third_person = false
+    end
+    SkinLib._ready_up_first_person = SkinLib._ready_up_first_person or {}
+    SkinLib._ready_up_first_person[peer:id()] = not third_person
     return self:_assemble(factory_id, p_unit, blueprint, third_person, done_cb, skip_queue)
 end

@@ -31,6 +31,12 @@ function HuskPlayerInventory:add_unit_by_factory_name(factory_name, equip, insta
 	local synced = self._skinlib_cosmetics_string
 	self._skinlib_cosmetics_string = nil
 
+	-- keep what the player told us, the ready up screen has no inventory to ask
+	local peer = self._unit:network():peer()
+	if peer then
+		SkinLib.set_peer_skin(peer:id(), factory_name, synced)
+	end
+
 	local skin_id, force_parts = SkinLib.get_synced_custom_skin(synced, factory_name)
 	if not skin_id then
 		return add_unit_by_factory_name_original(self, factory_name, equip, instant, blueprint_string, cosmetics_string)
@@ -44,3 +50,7 @@ function HuskPlayerInventory:add_unit_by_factory_name(factory_name, equip, insta
 
 	return self:add_unit_by_factory_blueprint(factory_name, equip, instant, blueprint)
 end
+
+Hooks:Add("BaseNetworkSessionOnPeerRemoved", "SkinLib.HuskPlayerInventory.BaseNetworkSessionOnPeerRemoved", function(peer, peer_id)
+	SkinLib._peer_skins[peer_id] = nil
+end)
