@@ -1,4 +1,5 @@
 ## next:
+- fix only forced parts updating when previewing in the skin selection menu
 
 ## 0.4.0:
 - implement showing other players
