@@ -3,7 +3,7 @@
     name="SkinLib"
     description="Library to add Skins"
     author="shinrax2"
-    version="0.4.0"
+    version="0.4.1"
     contact="https://github.com/shinrax2/SkinLib"
     disable_safe_mode="true"
     is_library="true"

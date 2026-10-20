@@ -1,4 +1,6 @@
 ## next:
+
+## 0.4.1:
 - fix only forced parts updating when previewing in the skin selection menu
 - sort skins in skin selection menu alphabetically
 
