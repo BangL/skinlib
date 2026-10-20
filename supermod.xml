@@ -40,6 +40,7 @@
         <post hook_id="lib/managers/hud/hudweapon/hudweapongrenade" script_path="hooks/HUDWeaponGrenade.lua" /> 
         <post hook_id="lib/managers/hud/hudweapon/hudweapongeneric" script_path="hooks/HUDWeaponGeneric.lua" />
         <post hook_id="lib/managers/menu/raid_menu/weaponselectiongui" script_path="hooks/WeaponSelectionGui.lua" />
+        <post hook_id="lib/managers/menu/raid_menu/readyupgui" script_path="hooks/ReadyUpGui.lua" />
         <!-- Menu code -->
         <post hook_id="lib/managers/menu/menucomponentmanager" script_path="hooks/MenuComponentManager.lua" />
     </hooks>

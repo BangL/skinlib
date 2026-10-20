@@ -130,6 +130,23 @@ function SkinLib._add_part(part)
     SkinLib._parts[part.id] = part
 end
 
+---Whether a custom skin has parts without third person materials of their own (they use the first person ones)
+---@param skin_id string
+---@return boolean
+function SkinLib.skin_lacks_tps(skin_id)
+    local skin = tweak_data.weapon.weapon_skins[skin_id]
+    if not (skin and skin.custom) then
+        return false
+    end
+    for _, part_id in pairs(skin.replaces_parts or {}) do
+        local part = tweak_data.weapon.factory.parts[part_id]
+        if part and part.custom and part.materials_fps and next(part.materials_fps) and not part.tps_provided then
+            return true
+        end
+    end
+    return false
+end
+
 function SkinLib._add_unique_material(unique_material, material)
     local inserted = false
     for _, m in ipairs(unique_material) do
@@ -432,6 +449,25 @@ function SkinLib.get_synced_custom_skin(cosmetics_string, factory_id)
         end
     end
     return skin_id, force_parts
+end
+
+-- cosmetics strings the players synced for their weapons: peer_id -> factory_id -> cosmetics string
+SkinLib._peer_skins = {}
+
+---@param peer_id number
+---@param factory_id string npc or not
+---@param cosmetics_string string|nil
+function SkinLib.set_peer_skin(peer_id, factory_id, cosmetics_string)
+    SkinLib._peer_skins[peer_id] = SkinLib._peer_skins[peer_id] or {}
+    SkinLib._peer_skins[peer_id][(factory_id:gsub("_npc$", ""))] = cosmetics_string
+end
+
+---@param peer_id number
+---@param factory_id string npc or not
+---@return string|nil cosmetics_string
+function SkinLib.get_peer_skin(peer_id, factory_id)
+    local skins = SkinLib._peer_skins[peer_id]
+    return skins and skins[(factory_id:gsub("_npc$", ""))]
 end
 
 ---Skin data whose force_cosmetic_parts apply to a weapon right now: the previewed skin in the skin selection, otherwise the applied one
