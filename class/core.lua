@@ -13,7 +13,6 @@ SkinLib.default_settings = {
     ExpandWeaponRotation = true,
 }
 SkinLib.settings = clone(SkinLib.default_settings)
-SkinLib._preview_skin_enabled = false
 
 SkinLib.weapon_tbl = {
     -- secondaries
@@ -433,6 +432,19 @@ function SkinLib.get_synced_custom_skin(cosmetics_string, factory_id)
         end
     end
     return skin_id, force_parts
+end
+
+---Skin data whose force_cosmetic_parts apply to a weapon right now: the previewed skin in the skin selection, otherwise the applied one
+---@param factory_id string
+---@return table|nil
+function SkinLib.get_force_skin_data(factory_id)
+    if SkinLib._preview_skin_id then
+        return tweak_data.weapon.weapon_skins[SkinLib._preview_skin_id]
+    end
+    if managers.weapon_inventory then
+        local _, skin_data = managers.weapon_inventory:get_applied_weapon_skin(factory_id)
+        return skin_data
+    end
 end
 
 ---Applies force_cosmetic_parts of a skin to a blueprint (base part -> replacement, "" removes it)

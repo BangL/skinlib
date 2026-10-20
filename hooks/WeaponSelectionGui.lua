@@ -4,13 +4,6 @@ end
 
 Hooks:PostHook(WeaponSelectionGui, "_on_skins_button_click", "SkinLib.WeaponSelectionGui._on_skins_button_click", function (self)
     self._SL_weapon_id = self._selected_weapon_id -- store _selected_weapon_id now as it is changed after _on_apply_weapon_skin
-	SkinLib._preview_skin_enabled = true
-end)
-
-Hooks:PreHook(WeaponSelectionGui, "back_pressed", "SkinLib.WeaponSelectionGui.back_pressed", function (self)
-	if self._weapon_skins_panel and self._weapon_skins_panel:visible() then
-		SkinLib._preview_skin_enabled = false
-	end
 end)
 
 Hooks:PostHook(WeaponSelectionGui, "_on_apply_weapon_skin", "SkinLib.WeaponSelectionGui._on_apply_weapon_skin", function (self, item)
@@ -90,9 +83,16 @@ end
 
 -- the skin preview assembles with the previewed skin, not the applied one, so tell WeaponFactoryManager:assemble_from_blueprint which skin to force parts of.
 Hooks:PreHook(WeaponSelectionGui, "_preload_blueprint_completed", "SkinLib.WeaponSelectionGui._preload_blueprint_completed", function (self, params)
-	if SkinLib._preview_skin_enabled then
-    	SkinLib._preview_skin_id = params and params.weapon_skin_id
-	end
+    SkinLib._preview_skin_id = params and params.weapon_skin_id
+end)
+
+-- preload_blueprint is called in here, so it needs the previewed skin to preload the forced parts of it
+Hooks:PreHook(WeaponSelectionGui, "_unit_loading_complete", "SkinLib.WeaponSelectionGui._unit_loading_complete", function (self, params)
+    SkinLib._preview_skin_id = params and params.weapon_skin_id
+end)
+
+Hooks:PostHook(WeaponSelectionGui, "_unit_loading_complete", "SkinLib.WeaponSelectionGui._unit_loading_complete.reset", function (self)
+    SkinLib._preview_skin_id = nil
 end)
 
 Hooks:PostHook(WeaponSelectionGui, "_preload_blueprint_completed", "SkinLib.WeaponSelectionGui._preload_blueprint_completed.reset", function (self)
