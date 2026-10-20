@@ -1,3 +1,7 @@
+local function sort_skin_tbl(a, b)
+    return a.value < b.value
+end
+
 Hooks:PostHook(WeaponSelectionGui, "_on_skins_button_click", "SkinLib.WeaponSelectionGui._on_skins_button_click", function (self)
     self._SL_weapon_id = self._selected_weapon_id -- store _selected_weapon_id now as it is changed after _on_apply_weapon_skin
 end)
@@ -26,3 +30,53 @@ Hooks:PostHook(WeaponSelectionGui, "_on_apply_weapon_skin", "SkinLib.WeaponSelec
         end
     end
 end)
+
+---@diagnostic disable-next-line: duplicate-set-field
+function WeaponSelectionGui:_weapon_skins_data_source()
+	local t = {}
+
+	if self._selected_weapon_id then
+		local skins = tweak_data.weapon:get_weapon_skins(self._selected_weapon_id)
+
+		Application:trace("[WeaponSelectionGui:_get_skins_list] Skins:", inspect(skins))
+
+		if skins then
+			for i, skin_id in ipairs(skins) do
+				local skin_data = tweak_data.weapon.weapon_skins[skin_id]
+				local name_id = tweak_data.weapon:get_weapon_skin_name_id(skin_id)
+				local owned = managers.weapon_inventory:is_weapon_skin_owned(skin_id)
+				local breadcrumb = {
+					category = BreadcrumbManager.CATEGORY_WEAPON_SKIN,
+					identifiers = {
+						skin_data.weapon_id,
+						skin_id,
+					},
+				}
+
+				table.insert(t, {
+					breadcrumb = breadcrumb,
+					challenge = skin_data.challenge,
+					dlc = skin_data.dlc,
+					gold_price = skin_data.gold_price,
+					skin_id = skin_id,
+					unlocked = owned,
+					value = managers.localization:text(name_id),
+				})
+			end
+		end
+	else
+		Application:debug("[WeaponSelectionGui] cant get skins from weapon, current weapon doesnt exist yet")
+	end
+    table.sort(t, sort_skin_tbl)
+    local t2 = {}
+    table.insert(t2, {
+		key = 1,
+		unlocked = true,
+		value = managers.localization:text("menu_weapon_no_skin"),
+	})
+    for _, tbl in ipairs(t) do
+        table.insert(t2, tbl)
+    end
+
+	return t2
+end
