@@ -71,10 +71,12 @@ function SkinLib.Load()
     local file = io.open(SkinLib.save_path, "r")
 	if file then
 		local options = json.decode(file:read("*all"))
-		for key, ops in pairs(options) do
-			SkinLib.settings[key] = ops
-		end
-		file:close()
+        file:close()
+        if type(options) == "table" then
+            for key, ops in pairs(options) do
+                SkinLib.settings[key] = ops
+            end
+        end
 	end
 end
 
@@ -90,10 +92,12 @@ function SkinLib.Load_owned_skins()
     local file = io.open(SkinLib._owned_skins_save_path, "r")
 	if file then
 		local skins = json.decode(file:read("*all"))
-		for skin_id, price in pairs(skins) do
-			SkinLib._owned_skins[skin_id] = price
-		end
-		file:close()
+        file:close()
+        if type(skins) == "table" then
+            for skin_id, price in pairs(skins) do
+                SkinLib._owned_skins[skin_id] = price
+            end
+        end
 	end
 end
 

@@ -49,19 +49,22 @@ function WeaponInventoryManager:load_profile_slot(data)
 
 	self._owned_skins = state.owned_skins or {}
 	SkinLib.Load_owned_skins()
+	local skinlib_migrate = false
 
 	for skin_id, gold_price in pairs(self._owned_skins) do
-		log("[SkinLib] loaded vanilla owned_skin id: ".. skin_id)
+		if SkinLib.debug() then
+			log("[SkinLib] loaded vanilla owned_skin id: ".. skin_id)
+		end
 		local tweak = tweak_data.weapon.weapon_skins[skin_id]
 		if tweak and tweak.custom then
 			-- migrate to new save system
-			log("[SkinLib] migrate custom skin to new save system id: ".. skin_id)
+			if SkinLib.debug() then
+				log("[SkinLib] migrate custom skin to new save system id: ".. skin_id)
+			end
 			SkinLib.migrate_owned_skin(skin_id, tweak)
 			-- remove from game save
 			self._owned_skins[skin_id] = nil
-
-			SkinLib.Save_owned_skins()
-			managers.savefile:set_resave_required()
+			skinlib_migrate = true
 		end
 		-- fix crash for unknown skins
 		if not tweak then
@@ -70,11 +73,18 @@ function WeaponInventoryManager:load_profile_slot(data)
 		end
 	end
 
+	if skinlib_migrate then
+		SkinLib.Save_owned_skins()
+		managers.savefile:set_resave_required()
+	end
+
 	-- add unlocked skins from skinlib
 	for skin_id, gold_price in pairs(SkinLib._owned_skins) do
 		local tweak = tweak_data.weapon.weapon_skins[skin_id]
 		if tweak then
-			log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
+			if SkinLib.debug() then
+				log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
+			end
 			self._owned_skins[skin_id] = gold_price
 		end
 	end

@@ -142,7 +142,7 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
 			si.weapon_name_id = skin.params.weapon_name_id or nil
 			si.challenge = skin.params.challenge or nil
 			si.droppable = skin.params.droppable or nil
-			si.gold_price = skin.params.gold_price or nil
+			si.gold_price = skin.params.gold_price or 0
 			si.rarity = LootDropTweakData[skin.params.rarity] or nil
 			si.replaces_units = skin.params.replaces_units or nil
             si.icon_large = skin.params.icon_large or nil
