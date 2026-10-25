@@ -20,7 +20,7 @@
 - sort skins in skin selection menu alphabetically
 
 ## 0.4.0:
-- implement showing other players
+- implement showing other player's weapon skins
 - use xml version for SkinLib.RequireVersion()
 
 ## 0.3.2:
