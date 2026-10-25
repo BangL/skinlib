@@ -14,7 +14,7 @@ SkinLib.default_settings = {
 }
 SkinLib.settings = clone(SkinLib.default_settings)
 SkinLib._owned_skins = SkinLib._owned_skins or {}
-SkinLib._owned_skins_save_path = SavePath .. "SkinLib._owned_skins." .. Steam:userid() ..".json"
+SkinLib._owned_skins_save_path = SavePath .. "SkinLib._owned_skins." .. Steam:userid() or "0" ..".json"
 
 SkinLib.weapon_tbl = {
     -- secondaries

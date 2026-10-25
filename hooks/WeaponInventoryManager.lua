@@ -1,3 +1,17 @@
+Hooks:PostHook(WeaponInventoryManager, "setup", "SkinLib.WeaponInventoryManager.setup", function (self)
+	SkinLib.Load_owned_skins()
+	-- add unlocked skins from skinlib
+	for skin_id, gold_price in pairs(SkinLib._owned_skins) do
+		local tweak = tweak_data.weapon.weapon_skins[skin_id]
+		if tweak then
+			if SkinLib.debug() then
+				log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
+			end
+			self._owned_skins[skin_id] = gold_price
+		end
+	end
+end)
+
 -- hotfix to avoid crashes when unlocked skin is not in tweak_data, will be fixed in next game update
 
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -48,7 +62,6 @@ function WeaponInventoryManager:load_profile_slot(data)
 	end
 
 	self._owned_skins = state.owned_skins or {}
-	SkinLib.Load_owned_skins()
 	local skinlib_migrate = false
 
 	for skin_id, gold_price in pairs(self._owned_skins) do
@@ -76,22 +89,23 @@ function WeaponInventoryManager:load_profile_slot(data)
 	if skinlib_migrate then
 		SkinLib.Save_owned_skins()
 		managers.savefile:set_resave_required()
-	end
 
-	-- add unlocked skins from skinlib
-	for skin_id, gold_price in pairs(SkinLib._owned_skins) do
-		local tweak = tweak_data.weapon.weapon_skins[skin_id]
-		if tweak then
-			if SkinLib.debug() then
-				log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
+		-- readd unlocked skins from skinlib due to migration from old skinlib save system
+		for skin_id, gold_price in pairs(SkinLib._owned_skins) do
+			local tweak = tweak_data.weapon.weapon_skins[skin_id]
+			if tweak then
+				if SkinLib.debug() then
+					log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
+				end
+				self._owned_skins[skin_id] = gold_price
 			end
-			self._owned_skins[skin_id] = gold_price
 		end
 	end
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function WeaponInventoryManager:save_profile_slot(data)
+	SkinLib.Load_owned_skins()
 	local state = {
 		melee_weapons = self._weapons[WeaponInventoryManager.CATEGORY_NAME_MELEE],
 		owned_skins = self._owned_skins,
