@@ -20,7 +20,7 @@
 		<loc file="english.json" language="english" />
 	</localization>
 
-    <assets load="startup">
+    <assets>
         <file path="timelines_welrod_df.texture" name="units/upd_017/weapons/wpn_fps_pis_welrod_pts/textures/timelines_welrod_df.texture" />
         <file path="timelines_welrod_gsm.texture" name="units/upd_017/weapons/wpn_fps_pis_welrod_pts/textures/timelines_welrod_gsm.texture" />
     </assets>
