@@ -1,8 +1,11 @@
 ## next:
+
+## 0.5.0:
 - skins without third person materials now also apply to the third person model (its materials are named wpn_third_* instead of wpn_fps_*)
 - show skins in the ready up screen, also textures (the game only applied them to the weapon base, which the screen does not use)
 - ready up screen: the skins other players synced for their equipped weapons show there too (SkinLib remembers them per player)
 - ready up screen: weapons with a custom skin without third person materials are built from the first person parts
+- new save system for owned custom skins featuring: a migrator for the old system, ability to keep owning skins that you uninstalled or couldnt load due to errors, saves are split so different steam accounts on the same machine will each have their own save data for SkinLib)
 
 # 0.4.3:
 - reworked preview crash fix

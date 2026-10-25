@@ -13,6 +13,8 @@ SkinLib.default_settings = {
     ExpandWeaponRotation = true,
 }
 SkinLib.settings = clone(SkinLib.default_settings)
+SkinLib._owned_skins = SkinLib._owned_skins or {}
+SkinLib._owned_skins_save_path = SavePath .. "SkinLib._owned_skins." .. Steam:userid() ..".json"
 
 SkinLib.weapon_tbl = {
     -- secondaries
@@ -82,6 +84,32 @@ function SkinLib.Save()
 		file:write(json.encode(SkinLib.settings))
 		file:close()
 	end
+end
+
+function SkinLib.Load_owned_skins()
+    local file = io.open(SkinLib._owned_skins_save_path, "r")
+	if file then
+		local skins = json.decode(file:read("*all"))
+		for skin_id, price in pairs(skins) do
+			SkinLib._owned_skins[skin_id] = price
+		end
+		file:close()
+	end
+end
+
+function SkinLib.Save_owned_skins()
+	local file = io.open(SkinLib._owned_skins_save_path, "w+")
+	if file then
+		file:write(json.encode(SkinLib._owned_skins))
+		file:close()
+	end
+end
+
+function SkinLib.migrate_owned_skin(skin_id, data)
+    local skin = SkinLib._owned_skins[skin_id]
+    if not skin then
+        SkinLib._owned_skins[skin_id] = data.gold_price
+    end
 end
 
 function SkinLib.debug()

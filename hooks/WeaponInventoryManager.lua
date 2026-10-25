@@ -1,6 +1,6 @@
 -- hotfix to avoid crashes when unlocked skin is not in tweak_data, will be fixed in next game update
 
----@diagnostic disable: duplicate-set-field
+---@diagnostic disable-next-line: duplicate-set-field
 function WeaponInventoryManager:load_profile_slot(data)
 	self:setup()
 
@@ -48,11 +48,62 @@ function WeaponInventoryManager:load_profile_slot(data)
 	end
 
 	self._owned_skins = state.owned_skins or {}
+	SkinLib.Load_owned_skins()
 
 	for skin_id, gold_price in pairs(self._owned_skins) do
-		if not tweak_data.weapon.weapon_skins[skin_id] then
+		log("[SkinLib] loaded vanilla owned_skin id: ".. skin_id)
+		local tweak = tweak_data.weapon.weapon_skins[skin_id]
+		if tweak and tweak.custom then
+			-- migrate to new save system
+			log("[SkinLib] migrate custom skin to new save system id: ".. skin_id)
+			SkinLib.migrate_owned_skin(skin_id, tweak)
+			-- remove from game save
+			self._owned_skins[skin_id] = nil
+
+			SkinLib.Save_owned_skins()
+			managers.savefile:set_resave_required()
+		end
+		-- fix crash for unknown skins
+		if not tweak then
 			-- self._owned_skins = nil
             self._owned_skins[skin_id] = nil
 		end
 	end
+
+	-- add unlocked skins from skinlib
+	for skin_id, gold_price in pairs(SkinLib._owned_skins) do
+		local tweak = tweak_data.weapon.weapon_skins[skin_id]
+		if tweak then
+			log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
+			self._owned_skins[skin_id] = gold_price
+		end
+	end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function WeaponInventoryManager:save_profile_slot(data)
+	local state = {
+		melee_weapons = self._weapons[WeaponInventoryManager.CATEGORY_NAME_MELEE],
+		owned_skins = self._owned_skins,
+		version_account_wide = self.version_account_wide,
+	}
+
+	-- SkinLib skins from vanilla save data
+	local owned_skins = {}
+	for skin_id, price in pairs(self._owned_skins) do
+		local tweak = tweak_data.weapon.weapon_skins[skin_id]
+		if tweak and tweak.custom then
+			-- migrate to new save system
+			SkinLib.migrate_owned_skin(skin_id, tweak)
+			-- remove from game save
+			--self._owned_skins[skin_id] = nil
+		else
+			owned_skins[skin_id] = price
+		end
+	end
+
+	state.owned_skins = owned_skins
+	SkinLib.Save_owned_skins()
+
+	data.WeaponInventoryManager = state
 end
