@@ -35,6 +35,8 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
             local m_tps = {}
             local unique_materials = {}
 
+            local tps_derived
+
             local materials_fps = part.params.fps or {}
             local materials_tps = part.params.tps or {}
 
@@ -58,8 +60,23 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
                     m_tps[name].reflection_texture = part.params.tps[name].reflection_texture or nil
                     unique_materials = SkinLib._add_unique_material(unique_materials, name)
                 end
+                if part.params.unit == nil and part.params.third_unit == nil then
+                    local old_name, new_name = SkinLib._fix_tps_material_name(part.params.base_part, m_tps, unique_materials)
+                    if old_name then
+                        log("[SkinLib] part " .. tostring(part.params.part_id) .. ": third person material '" .. old_name .. "' does not exist, using '" .. new_name .. "'")
+                    end
+                end
             else
-                -- use fps as tps, the third person model names its materials wpn_third_* instead of wpn_fps_*
+                tps_derived = SkinLib._derive_tps_materials(part.params.base_part, m_fps)
+            end
+            if tps_derived then
+                -- built from the vanilla third person materials of the base part, with the diffuse of the skin
+                for name, textures in pairs(tps_derived) do
+                    m_tps[name] = textures
+                    unique_materials = SkinLib._add_unique_material(unique_materials, name)
+                end
+            elseif part.params.tps == nil then
+                -- no vanilla data: use fps as tps, the third person model names its materials wpn_third_* instead of wpn_fps_*
                 for name, textures in pairs(m_fps) do
                     m_tps[name] = textures
                     local third_name = (name:gsub("^wpn_fps_", "wpn_third_"))
@@ -103,7 +120,8 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
             -- custom fields for our network code
             tweak_data.weapon.factory.parts[part.params.part_id].custom = true
             tweak_data.weapon.factory.parts[part.params.part_id].base_part = part.params.base_part
-            tweak_data.weapon.factory.parts[part.params.part_id].tps_provided = part.params.tps ~= nil
+            -- nothing to provide if the vanilla third person part has no materials
+            tweak_data.weapon.factory.parts[part.params.part_id].tps_provided = part.params.tps ~= nil or tps_derived ~= nil or not SkinLib._base_part_has_tps_materials(part.params.base_part)
 
             SkinLib._set_injected_part(id)
         end

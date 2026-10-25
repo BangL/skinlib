@@ -130,6 +130,126 @@ function SkinLib._add_part(part)
     SkinLib._parts[part.id] = part
 end
 
+local function normalized_texture_name(path)
+    local name = path and path:match("([^/]+)$")
+    if not name then
+        return nil
+    end
+    name = name:gsub("^wpn_fps_", ""):gsub("^wpn_third_", "")
+    return name
+end
+
+---Third person materials for a part whose skin only comes with first person materials, built from the vanilla data of the
+---base part in _fix_tbl: real material names, real third person folders and bump/material textures, only the diffuse
+---texture of the skin is put in. A vanilla third person material belongs to the skin material whose vanilla diffuse has
+---the same file name apart from the wpn_fps_/wpn_third_ prefix, else to the one with the matching name, else (one
+---material on each side) to the only one. Materials without a match keep the vanilla textures.
+---@param base_part string
+---@param m_fps table skin first person materials, name -> textures
+---@return table|nil materials nil if there is no vanilla data or nothing matched
+function SkinLib._derive_tps_materials(base_part, m_fps)
+    local fix = SkinLib._fix_tbl[base_part]
+    if not (fix and fix.tps and next(fix.tps)) then
+        return nil
+    end
+
+    local fps_by_diffuse = {}
+    local fps_count = 0
+    for name in pairs(m_fps) do
+        fps_count = fps_count + 1
+        local vanilla = fix.fps and fix.fps[name]
+        local key = vanilla and normalized_texture_name(vanilla.diffuse_texture)
+        if key then
+            fps_by_diffuse[key] = name
+        end
+    end
+    local tps_count = 0
+    for _ in pairs(fix.tps) do
+        tps_count = tps_count + 1
+    end
+
+    local derived = {}
+    local matched = 0
+    for tps_name, vanilla in pairs(fix.tps) do
+        local fps_name = fps_by_diffuse[normalized_texture_name(vanilla.diffuse_texture)]
+        if not fps_name then
+            local same_name = tps_name:gsub("^wpn_third_", "wpn_fps_")
+            if m_fps[same_name] then
+                fps_name = same_name
+            elseif fps_count == 1 and tps_count == 1 then
+                fps_name = next(m_fps)
+            end
+        end
+        local diffuse = fps_name and m_fps[fps_name].diffuse_texture
+        if diffuse then
+            derived[tps_name] = {
+                bump_normal_texture = vanilla.bump_normal_texture,
+                diffuse_texture = diffuse,
+                material_texture = vanilla.material_texture,
+                reflection_texture = vanilla.reflection_texture,
+            }
+            matched = matched + 1
+        end
+    end
+
+    return matched > 0 and derived or nil
+end
+
+---A skin that uses the vanilla model has to name the vanilla third person materials, a typo (e.g. wpn_tps_* instead of
+---wpn_third_*) would make the skin silently do nothing there. If exactly one given name is unknown and exactly one vanilla
+---material is unused, the given material is meant for it: rename it (the textures stay).
+---Parts with their own model, and parts _fix_tbl knows nothing about, are left alone.
+---@param base_part string
+---@param m_tps table skin third person materials, name -> textures, renamed in place
+---@param unique_materials table list of material names, renamed in place
+---@return string|nil old_name
+---@return string|nil new_name
+function SkinLib._fix_tps_material_name(base_part, m_tps, unique_materials)
+    local fix = SkinLib._fix_tbl[base_part]
+    if not (fix and fix.tps and next(fix.tps)) then
+        return nil
+    end
+
+    local unknown, unused
+    for name in pairs(m_tps) do
+        if not fix.tps[name] then
+            if unknown then
+                return nil
+            end
+            unknown = name
+        end
+    end
+    for name in pairs(fix.tps) do
+        if not m_tps[name] then
+            if unused then
+                return nil
+            end
+            unused = name
+        end
+    end
+    if not (unknown and unused) then
+        return nil
+    end
+
+    m_tps[unused] = m_tps[unknown]
+    m_tps[unknown] = nil
+    for i, name in ipairs(unique_materials) do
+        if name == unknown then
+            unique_materials[i] = unused
+        end
+    end
+    return unknown, unused
+end
+
+---Whether the vanilla third person part has materials at all (e.g. magazines of some weapons have none, so there is nothing to skin)
+---@param base_part string
+---@return boolean
+function SkinLib._base_part_has_tps_materials(base_part)
+    local fix = SkinLib._fix_tbl[base_part]
+    local tps = fix and fix.tps or tweak_data.weapon.factory.parts[base_part].materials_tps
+    return tps ~= nil and next(tps) ~= nil
+end
+
 ---Whether a custom skin has parts without third person materials of their own (they use the first person ones)
 ---@param skin_id string
 ---@return boolean
