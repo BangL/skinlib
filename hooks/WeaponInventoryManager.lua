@@ -89,16 +89,16 @@ function WeaponInventoryManager:load_profile_slot(data)
 	if skinlib_migrate then
 		SkinLib.Save_owned_skins()
 		managers.savefile:set_resave_required()
+	end
 
-		-- readd unlocked skins from skinlib due to migration from old skinlib save system
-		for skin_id, gold_price in pairs(SkinLib._owned_skins) do
-			local tweak = tweak_data.weapon.weapon_skins[skin_id]
-			if tweak then
-				if SkinLib.debug() then
-					log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
-				end
-				self._owned_skins[skin_id] = gold_price
+	-- readd unlocked skins from skinlib due to migration from old skinlib save system
+	for skin_id, gold_price in pairs(SkinLib._owned_skins) do
+		local tweak = tweak_data.weapon.weapon_skins[skin_id]
+		if tweak then
+			if SkinLib.debug() then
+				log("[SkinLib] loaded custom owned_skin id: " .. skin_id)
 			end
+			self._owned_skins[skin_id] = gold_price
 		end
 	end
 end
@@ -126,8 +126,8 @@ function WeaponInventoryManager:save_profile_slot(data)
 		end
 	end
 
-	state.owned_skins = owned_skins
-	SkinLib.Save_owned_skins()
-
+	if SkinLib.Save_owned_skins() then
+		state.owned_skins = owned_skins
+	end
 	data.WeaponInventoryManager = state
 end

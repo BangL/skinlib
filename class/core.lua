@@ -14,7 +14,7 @@ SkinLib.default_settings = {
 }
 SkinLib.settings = clone(SkinLib.default_settings)
 SkinLib._owned_skins = SkinLib._owned_skins or {}
-SkinLib._owned_skins_save_path = SavePath .. "SkinLib._owned_skins." .. Steam:userid() or "0" ..".json"
+SkinLib._owned_skins_save_path = SavePath .. "SkinLib._owned_skins." .. (Steam:userid() or "0") ..".json"
 
 SkinLib.weapon_tbl = {
     -- secondaries
@@ -106,13 +106,14 @@ function SkinLib.Save_owned_skins()
 	if file then
 		file:write(json.encode(SkinLib._owned_skins))
 		file:close()
+        return true
 	end
 end
 
 function SkinLib.migrate_owned_skin(skin_id, data)
     local skin = SkinLib._owned_skins[skin_id]
     if not skin then
-        SkinLib._owned_skins[skin_id] = data.gold_price
+        SkinLib._owned_skins[skin_id] = data.gold_price or 0
     end
 end
 
