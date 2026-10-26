@@ -97,11 +97,42 @@ Hooks:PostHook(PlayerInventory, "save", "SkinLib.PlayerInventory.save", function
 	end
 end)
 
+-- decal and sounds are read from the tweak data of the melee weapon, so it carries the ones of the skin while it is applied
+local melee_originals = {}
+local function apply_melee_overrides(melee_weapon_id, skin)
+	local melee = tweak_data.blackmarket.melee_weapons[melee_weapon_id]
+	if not melee then
+		return
+	end
+
+	local original = melee_originals[melee_weapon_id]
+	if original then
+		melee.decal_effect = original.decal_effect
+		melee.sounds = original.sounds
+	end
+
+	if not (skin and skin.custom and (skin.melee_decal_effect ~= nil or skin.melee_sounds)) then
+		return
+	end
+
+	melee_originals[melee_weapon_id] = original or { decal_effect = melee.decal_effect, sounds = melee.sounds }
+
+	if skin.melee_decal_effect ~= nil then
+		melee.decal_effect = skin.melee_decal_effect or nil
+	end
+	if skin.melee_sounds then
+		melee.sounds = type(skin.melee_sounds) == "string" and tweak_data.blackmarket.melee_sounds[skin.melee_sounds] or skin.melee_sounds
+	end
+end
+
 -- vanilla only applies skins to throwables, so swap the melee units of the applied skin
 local set_melee_weapon = PlayerInventory.set_melee_weapon
 function PlayerInventory:set_melee_weapon(melee_weapon_id, is_npc, ...)
 	-- husks also get here (is_npc), the applied skin is ours, not theirs
 	local _, skin = managers.weapon_inventory:get_applied_weapon_skin(melee_weapon_id)
+	if not is_npc then
+		apply_melee_overrides(melee_weapon_id, skin)
+	end
 	local units = not is_npc and skin and skin.replaces_units
 	if not units then
 		return set_melee_weapon(self, melee_weapon_id, is_npc, ...)

@@ -26,6 +26,7 @@ All setters return the object, so calls chain with `:`.
 | `add_part(part)` / `add_parts({...})` | Adds `SL_Part`s; they are registered with the skin and replace their `base_part` |
 | `set_replaces_unit(base, replacement)` / `set_replaces_units({base = replacement})` | Replaces whole units (keys like `unit`, `unit_dummy`, `unit_hand`; used e.g. for grenades; melee weapons use `unit` and `third_unit`) |
 | `set_fps_rotation(yaw, pitch, roll)` / `set_fps_offset(x, y, z)` | Turns / moves the unit in your own first person hand |
+| `set_melee_decal_effect(name_or_false)` / `set_melee_sounds(name_or_table)` | Melee skins: decal of hits (`"knife"` or `false` for none) and sounds (`equip`, `hit_air`, `hit_body`, `hit_gen`, `killing_blow`, or the name of a vanilla set in `tweak_data.blackmarket.melee_sounds`: `fist`, `generic`, `knife`, `machete`). Only for you, applied when the melee weapon is equipped |
 | `set_tps_rotation(yaw, pitch, roll)` / `set_tps_offset(x, y, z)` | Same for the third person unit in the hand of other players (only with peers that have the skin) |
 | `set_icon_large(path)` | Icon for the reward screen |
 | `set_hud_icon(path_or_table)` | HUD weapon icon (needs the `Custom HUD Icon` option) |
