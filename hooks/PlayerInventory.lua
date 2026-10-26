@@ -69,6 +69,7 @@ function PlayerInventory:_send_equipped_weapon(send_equipped_weapon_type)
 		blueprint_string = bp_pack(SkinLib._clean_blueprint(bp_unpack(blueprint_string, factory_id), factory_id), factory_id)
 		-- sync custom skin id, so peers with the same skin can apply it
 		if send_equipped_weapon_type == PlayerInventory.SEND_WEAPON_TYPE_PLAYER_PRIMARY_SECONDARY and not cosmetics_id then
+---@diagnostic disable-next-line: param-type-mismatch
 			local skin_id = SkinLib.get_applied_custom_skin(factory_id)
 			cosmetics_id = skin_id and SkinLib.make_cosmetics_string(skin_id)
 		end
@@ -127,6 +128,7 @@ end
 
 -- vanilla only applies skins to throwables, so swap the melee units of the applied skin
 local set_melee_weapon = PlayerInventory.set_melee_weapon
+---@diagnostic disable-next-line: duplicate-set-field
 function PlayerInventory:set_melee_weapon(melee_weapon_id, is_npc, ...)
 	-- husks also get here (is_npc), the applied skin is ours, not theirs
 	local _, skin = managers.weapon_inventory:get_applied_weapon_skin(melee_weapon_id)
