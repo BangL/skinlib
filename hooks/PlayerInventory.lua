@@ -99,11 +99,12 @@ end)
 
 -- vanilla only applies skins to throwables, so swap the melee units of the applied skin
 local set_melee_weapon = PlayerInventory.set_melee_weapon
-function PlayerInventory:set_melee_weapon(melee_weapon_id, ...)
+function PlayerInventory:set_melee_weapon(melee_weapon_id, is_npc, ...)
+	-- husks also get here (is_npc), the applied skin is ours, not theirs
 	local _, skin = managers.weapon_inventory:get_applied_weapon_skin(melee_weapon_id)
-	local units = skin and skin.replaces_units
+	local units = not is_npc and skin and skin.replaces_units
 	if not units then
-		return set_melee_weapon(self, melee_weapon_id, ...)
+		return set_melee_weapon(self, melee_weapon_id, is_npc, ...)
 	end
 
 	local blackmarket = managers.blackmarket
@@ -118,30 +119,84 @@ function PlayerInventory:set_melee_weapon(melee_weapon_id, ...)
 		return data
 	end
 
-	local ok, err = blt.pcall(set_melee_weapon, self, melee_weapon_id, ...)
+	local ok, err = blt.pcall(set_melee_weapon, self, melee_weapon_id, is_npc, ...)
 	blackmarket.get_melee_weapon_data = get_melee_weapon_data
 	if not ok then
 		error(err)
 	end
 end
 
--- melee skin units can be turned and moved in the hand
-Hooks:PostHook(PlayerInventory, "_link_weapon", "SkinLib.PlayerInventory._link_weapon", function(self, unit)
-	local base = alive(unit) and unit:base()
-	local melee_id = base and base.get_name_id and base:get_name_id()
-	local _, skin = managers.weapon_inventory:get_applied_weapon_skin(melee_id)
-	if not (skin and skin.custom and (skin.fps_rotation or skin.fps_offset)) then
+-- the custom skin of a weapon unit that was just linked to a place, and which transform of it to use:
+-- local player = applied skin (first person), husk = what the peer synced (third person)
+local function get_linked_skin(self, unit)
+	local base = unit:base()
+	local is_grenade = base and base.set_thrower_unit ~= nil
+	local name_id = base and (is_grenade and self.equipped_grenade or base.get_name_id and base:get_name_id())
+	if not (name_id or is_grenade and self._peer_weapons) then
+		return
+	end
+
+	local skin, prefix
+	if not self._peer_weapons then
+		local _
+		_, skin = managers.weapon_inventory:get_applied_weapon_skin(name_id)
+		prefix = "fps"
+	else
+		local skin_id
+		if is_grenade then
+			skin_id = self._skinlib_grenade_skin
+		elseif tweak_data.blackmarket.melee_weapons[name_id] then
+			skin_id = self._skinlib_melee_skin
+		elseif base._factory_id then
+			local peer = self._unit:network():peer()
+			skin_id = peer and SkinLib.get_synced_custom_skin(SkinLib.get_peer_skin(peer:id(), base._factory_id), base._factory_id)
+		end
+		skin = skin_id and tweak_data.weapon.weapon_skins[skin_id]
+		prefix = "tps"
+	end
+
+	if skin and skin.custom and (skin[prefix .. "_rotation"] or skin[prefix .. "_offset"]) then
+		return skin, prefix
+	end
+end
+
+-- skins can turn and move the unit in the hand (fps_/tps_rotation and _offset), anywhere else it keeps its own transform
+Hooks:PostHook(PlayerInventory, "_link_weapon", "SkinLib.PlayerInventory._link_weapon", function(self, unit, align_place)
+	if not alive(unit) then
 		return
 	end
 
 	local obj = unit:orientation_object()
-	if skin.fps_rotation then
-		local r = skin.fps_rotation
-		obj:set_local_rotation(Rotation(r[1], r[2], r[3]))
+	local base = unit:base()
+	local skin, prefix
+	if align_place == self._align_places.right_hand then
+		skin, prefix = get_linked_skin(self, unit)
 	end
-	if skin.fps_offset then
-		local o = skin.fps_offset
-		obj:set_local_position(Vector3(o[1], o[2], o[3]))
+
+	if not skin then
+		local orig = base and base._skinlib_orig_transform
+		if orig then
+			obj:set_local_rotation(orig.rotation)
+			obj:set_local_position(orig.position)
+			unit:set_moving()
+		end
+		return
+	end
+
+	if not base._skinlib_orig_transform then
+		base._skinlib_orig_transform = {
+			rotation = obj:local_rotation(),
+			position = obj:local_position(),
+		}
+	end
+
+	local r = skin[prefix .. "_rotation"]
+	if r then
+		obj:set_local_rotation(base._skinlib_orig_transform.rotation * Rotation(r[1], r[2], r[3]))
+	end
+	local o = skin[prefix .. "_offset"]
+	if o then
+		obj:set_local_position(base._skinlib_orig_transform.position + Vector3(o[1], o[2], o[3]))
 	end
 	unit:set_moving()
 end)

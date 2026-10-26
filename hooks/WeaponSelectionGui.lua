@@ -107,8 +107,11 @@ function WeaponSelectionGui:_show_unit(weapon_id, weapon_skin_id, ...)
 		return show_unit(self, weapon_id, weapon_skin_id, ...)
 	end
 
-	local skin = weapon_skin_id and tweak_data.weapon.weapon_skins[weapon_skin_id]
-	if not weapon_skin_id then
+	local skin
+	if weapon_skin_id then
+		skin = tweak_data.weapon.weapon_skins[weapon_skin_id]
+	else
+		local _
 		_, skin = managers.weapon_inventory:get_applied_weapon_skin(weapon_id)
 	end
 

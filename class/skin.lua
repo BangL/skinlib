@@ -162,7 +162,7 @@ function SL_Skin:set_hud_icon(icon)
     return self
 end
 
----Rotates the first person melee unit in the hand (melee skins with replaces_units)
+---Rotates the first person unit in the hand (your own weapon)
 ---@param yaw number
 ---@param pitch number
 ---@param roll number
@@ -172,13 +172,33 @@ function SL_Skin:set_fps_rotation(yaw, pitch, roll)
     return self
 end
 
----Moves the first person melee unit in the hand (melee skins with replaces_units)
+---Moves the first person unit in the hand (your own weapon)
 ---@param x number
 ---@param y number
 ---@param z number
 ---@return table
 function SL_Skin:set_fps_offset(x, y, z)
     self._skin.fps_offset = {x or 0, y or 0, z or 0}
+    return self
+end
+
+---Rotates the third person unit in the hand (the weapon of other players)
+---@param yaw number
+---@param pitch number
+---@param roll number
+---@return table
+function SL_Skin:set_tps_rotation(yaw, pitch, roll)
+    self._skin.tps_rotation = {yaw or 0, pitch or 0, roll or 0}
+    return self
+end
+
+---Moves the third person unit in the hand (the weapon of other players)
+---@param x number
+---@param y number
+---@param z number
+---@return table
+function SL_Skin:set_tps_offset(x, y, z)
+    self._skin.tps_offset = {x or 0, y or 0, z or 0}
     return self
 end
 
