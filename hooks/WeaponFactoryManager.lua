@@ -151,6 +151,8 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
             si.custom = true
             si.hud_icon = skin.params.hud_icon or nil
             si.force_cosmetic_parts = skin.params.force_cosmetic_parts or nil
+            si.fps_rotation = skin.params.fps_rotation or nil
+            si.fps_offset = skin.params.fps_offset or nil
 
 			tweak_data.weapon.weapon_skins[id] = si
 			SkinLib._set_injected_skin(id)

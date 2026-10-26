@@ -162,6 +162,26 @@ function SL_Skin:set_hud_icon(icon)
     return self
 end
 
+---Rotates the first person melee unit in the hand (melee skins with replaces_units)
+---@param yaw number
+---@param pitch number
+---@param roll number
+---@return table
+function SL_Skin:set_fps_rotation(yaw, pitch, roll)
+    self._skin.fps_rotation = {yaw or 0, pitch or 0, roll or 0}
+    return self
+end
+
+---Moves the first person melee unit in the hand (melee skins with replaces_units)
+---@param x number
+---@param y number
+---@param z number
+---@return table
+function SL_Skin:set_fps_offset(x, y, z)
+    self._skin.fps_offset = {x or 0, y or 0, z or 0}
+    return self
+end
+
 ---Sets cosmetic parts to override with skin
 ---@param parts table
 ---@return table

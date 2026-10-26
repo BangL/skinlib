@@ -96,3 +96,52 @@ Hooks:PostHook(PlayerInventory, "save", "SkinLib.PlayerInventory.save", function
 		data.cosmetics_string = SkinLib.make_cosmetics_string(skin_id)
 	end
 end)
+
+-- vanilla only applies skins to throwables, so swap the melee units of the applied skin
+local set_melee_weapon = PlayerInventory.set_melee_weapon
+function PlayerInventory:set_melee_weapon(melee_weapon_id, ...)
+	local _, skin = managers.weapon_inventory:get_applied_weapon_skin(melee_weapon_id)
+	local units = skin and skin.replaces_units
+	if not units then
+		return set_melee_weapon(self, melee_weapon_id, ...)
+	end
+
+	local blackmarket = managers.blackmarket
+	local get_melee_weapon_data = blackmarket.get_melee_weapon_data
+	blackmarket.get_melee_weapon_data = function(this, ...)
+		local data = get_melee_weapon_data(this, ...)
+		if data then
+			data = clone(data)
+			data.unit = units.unit or data.unit
+			data.third_unit = units.third_unit or data.third_unit
+		end
+		return data
+	end
+
+	local ok, err = blt.pcall(set_melee_weapon, self, melee_weapon_id, ...)
+	blackmarket.get_melee_weapon_data = get_melee_weapon_data
+	if not ok then
+		error(err)
+	end
+end
+
+-- melee skin units can be turned and moved in the hand
+Hooks:PostHook(PlayerInventory, "_link_weapon", "SkinLib.PlayerInventory._link_weapon", function(self, unit)
+	local base = alive(unit) and unit:base()
+	local melee_id = base and base.get_name_id and base:get_name_id()
+	local _, skin = managers.weapon_inventory:get_applied_weapon_skin(melee_id)
+	if not (skin and skin.custom and (skin.fps_rotation or skin.fps_offset)) then
+		return
+	end
+
+	local obj = unit:orientation_object()
+	if skin.fps_rotation then
+		local r = skin.fps_rotation
+		obj:set_local_rotation(Rotation(r[1], r[2], r[3]))
+	end
+	if skin.fps_offset then
+		local o = skin.fps_offset
+		obj:set_local_position(Vector3(o[1], o[2], o[3]))
+	end
+	unit:set_moving()
+end)
