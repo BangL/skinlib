@@ -15,6 +15,12 @@ function HuskPlayerInventory:synch_equipped_weapon(send_equipped_weapon_type, eq
 				cosmetics_string = nil
 			end
 		end
+		-- kept until the next sync of the same kind, the units are relinked on every weapon switch (see PlayerInventory:_link_weapon)
+		if equipped_weapon_category_id == WeaponInventoryManager.BM_CATEGORY_MELEE_ID then
+			self._skinlib_melee_skin = cosmetics_string
+		elseif equipped_weapon_category_id == WeaponInventoryManager.BM_CATEGORY_GRENADES_ID then
+			self._skinlib_grenade_skin = cosmetics_string
+		end
 	end
 
 	return synch_equipped_weapon_original(self, send_equipped_weapon_type, equipped_weapon_category_id, equipped_weapon_identifier, blueprint_string, cosmetics_string, peer)

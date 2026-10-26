@@ -24,7 +24,9 @@ All setters return the object, so calls chain with `:`.
 | `set_rarity(r)` | `LootDropTweakData.RARITY_COMMON` / `_UNCOMMON` / `_RARE` |
 | `set_challenge(tbl)` | Challenge data for unlocking the skin |
 | `add_part(part)` / `add_parts({...})` | Adds `SL_Part`s; they are registered with the skin and replace their `base_part` |
-| `set_replaces_unit(base, replacement)` / `set_replaces_units({base = replacement})` | Replaces whole units (keys like `unit`, `unit_dummy`, `unit_hand`; used e.g. for grenades) |
+| `set_replaces_unit(base, replacement)` / `set_replaces_units({base = replacement})` | Replaces whole units (keys like `unit`, `unit_dummy`, `unit_hand`; used e.g. for grenades; melee weapons use `unit` and `third_unit`) |
+| `set_fps_rotation(yaw, pitch, roll)` / `set_fps_offset(x, y, z)` | Turns / moves the unit in your own first person hand |
+| `set_tps_rotation(yaw, pitch, roll)` / `set_tps_offset(x, y, z)` | Same for the third person unit in the hand of other players (only with peers that have the skin) |
 | `set_icon_large(path)` | Icon for the reward screen |
 | `set_hud_icon(path_or_table)` | HUD weapon icon (needs the `Custom HUD Icon` option) |
 | `set_force_cosmetic_parts({base = replacement})` | Forces cosmetic parts while the skin is applied; `""` as replacement removes the part (needs `Force Cosmetic Parts`) |

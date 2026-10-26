@@ -1,4 +1,6 @@
 ## next:
+- `set_fps_rotation` / `set_fps_offset` and `set_tps_rotation` / `set_tps_offset` to turn and move the unit in the hand
+- melee weapon skins: `replaces_units` (`unit`, `third_unit`) now also applies to the first person weapon and the weapon preview, not only to the third person model of other players
 
 ## 0.5.0:
 - skins without third person materials now also apply to the third person model (its materials are named wpn_third_* instead of wpn_fps_*)

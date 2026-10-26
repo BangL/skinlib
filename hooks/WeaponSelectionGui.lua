@@ -98,3 +98,33 @@ end)
 Hooks:PostHook(WeaponSelectionGui, "_preload_blueprint_completed", "SkinLib.WeaponSelectionGui._preload_blueprint_completed.reset", function (self)
     SkinLib._preview_skin_id = nil
 end)
+
+-- the melee preview ignores skins in vanilla
+local show_unit = WeaponSelectionGui._show_unit
+function WeaponSelectionGui:_show_unit(weapon_id, weapon_skin_id, ...)
+	local melee = tweak_data.blackmarket.melee_weapons[weapon_id]
+	if self._selected_weapon_category_id ~= WeaponInventoryManager.BM_CATEGORY_MELEE_ID or not melee then
+		return show_unit(self, weapon_id, weapon_skin_id, ...)
+	end
+
+	local skin
+	if weapon_skin_id then
+		skin = tweak_data.weapon.weapon_skins[weapon_skin_id]
+	else
+		local _
+		_, skin = managers.weapon_inventory:get_applied_weapon_skin(weapon_id)
+	end
+
+	local unit = skin and skin.replaces_units and skin.replaces_units.unit
+	if not unit then
+		return show_unit(self, weapon_id, weapon_skin_id, ...)
+	end
+
+	local original = melee.unit
+	melee.unit = unit
+	local ok, err = blt.pcall(show_unit, self, weapon_id, weapon_skin_id, ...)
+	melee.unit = original
+	if not ok then
+		error(err)
+	end
+end

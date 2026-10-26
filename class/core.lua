@@ -422,7 +422,7 @@ function SkinLib._validate_skin(skin, factory)
     end
 
     -- weapon_id valid?
-    if not tweak_data.weapon[skin.weapon_id] then
+    if not tweak_data.weapon[skin.weapon_id] and not tweak_data.blackmarket.melee_weapons[skin.weapon_id] then
         log(sl .. "invalid weapon_id: " .. skin.weapon_id .. " skin_id: " .. skin.skin_id)
         valid = false
     end
