@@ -155,6 +155,8 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
             si.fps_offset = skin.params.fps_offset or nil
             si.tps_rotation = skin.params.tps_rotation or nil
             si.tps_offset = skin.params.tps_offset or nil
+            si.melee_decal_effect = skin.params.melee_decal_effect
+            si.melee_sounds = skin.params.melee_sounds or nil
 
 			tweak_data.weapon.weapon_skins[id] = si
 			SkinLib._set_injected_skin(id)

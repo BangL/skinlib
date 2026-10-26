@@ -30,6 +30,8 @@
         <post hook_id="lib/units/beings/player/playerinventory" script_path="hooks/PlayerInventory.lua" /> 
         <!-- apply synced skins of peers -->
         <post hook_id="lib/units/beings/player/huskplayerinventory" script_path="hooks/HuskPlayerInventory.lua" />
+        <!-- melee swing item of peers with a skin -->
+        <post hook_id="lib/units/beings/player/huskplayermovement" script_path="hooks/HuskPlayerMovement.lua" />
         <!-- adds roll rotation on weapon preview -->
         <post hook_id="lib/managers/menu/raid_menu/controls/raidguicontrolrotateunit" script_path="hooks/RaidGUIControlRotateUnit.lua" />
         <!-- hotfix for vanilla crash -->

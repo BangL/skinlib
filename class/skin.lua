@@ -202,6 +202,26 @@ function SL_Skin:set_tps_offset(x, y, z)
     return self
 end
 
+---Melee skins: decal effect of hits, e.g. `"knife"` as the vanilla knives, `false` for none. Only for you, replaces the one of the base weapon while the skin is applied
+---@param decal_effect string|boolean
+---@return table
+function SL_Skin:set_melee_decal_effect(decal_effect)
+    if decal_effect ~= nil then
+        self._skin.melee_decal_effect = decal_effect
+    end
+    return self
+end
+
+---Melee skins: sounds (`equip`, `hit_air`, `hit_body`, `hit_gen`, `killing_blow`) as a table, or the name of a vanilla set from `tweak_data.blackmarket.melee_sounds` (`fist`, `generic`, `knife`, `machete`). Only for you, replaces the ones of the base weapon while the skin is applied
+---@param sounds string|table
+---@return table
+function SL_Skin:set_melee_sounds(sounds)
+    if sounds then
+        self._skin.melee_sounds = sounds
+    end
+    return self
+end
+
 ---Sets cosmetic parts to override with skin
 ---@param parts table
 ---@return table
