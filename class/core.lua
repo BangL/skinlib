@@ -345,6 +345,32 @@ function SkinLib._clean_blueprint(blueprint, factory_id)
     return new_blueprint
 end
 
+---Whether injecting the part can not crash: its weapon factory and base part exist
+---@param part table
+---@return boolean
+function SkinLib._can_inject_part(part)
+    local factory = tweak_data.weapon.factory
+    if not (factory[part.weapon_factory_id] and factory[part.weapon_factory_id].uses_parts and factory.parts[part.base_part]) then
+        log("[SkinLib] part " .. tostring(part.part_id) .. " skipped, unknown weapon_factory_id '" .. tostring(part.weapon_factory_id) .. "' or base_part '" .. tostring(part.base_part) .. "'")
+        return false
+    end
+    return true
+end
+
+---Whether injecting the skin can not crash: all parts it replaces with exist (skipped parts are missing)
+---@param skin table
+---@return boolean
+function SkinLib._can_inject_skin(skin)
+    local parts = tweak_data.weapon.factory.parts
+    for base, replace in pairs(skin.replaces_parts or {}) do
+        if not (parts[base] and parts[replace]) then
+            log("[SkinLib] skin " .. tostring(skin.skin_id) .. " skipped, part '" .. tostring(base) .. "' or '" .. tostring(replace) .. "' does not exist")
+            return false
+        end
+    end
+    return true
+end
+
 function SkinLib._validate_part(part, factory)
     local valid = true
     local sl = "[SkinLib][SL_Part][_validate_part] "

@@ -26,7 +26,7 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
 
     -- handle registered parts
     for id, part in pairs(SkinLib._get_parts()) do
-        if not SkinLib._is_part_injected(id) then
+        if not SkinLib._is_part_injected(id) and SkinLib._can_inject_part(part.params) then
             if SkinLib.debug() then
                 SkinLib._validate_part(part.params, tweak_data.weapon.factory)
             end
@@ -129,7 +129,7 @@ Hooks:PreHook(WeaponFactoryManager, "_read_factory_data", "SkinLib.WeaponFactory
 
     -- handle registered skins
     for id, skin in pairs(SkinLib._get_skins()) do
-		if not SkinLib._is_skin_injected(id) then
+		if not SkinLib._is_skin_injected(id) and SkinLib._can_inject_skin(skin.params) then
             if SkinLib.debug() then
 			    SkinLib._validate_skin(skin.params, tweak_data.weapon.factory)
             end
