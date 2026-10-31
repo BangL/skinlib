@@ -62,7 +62,7 @@ function WeaponInventoryManager:load_profile_slot(data)
 	end
 
 	self._owned_skins = state.owned_skins or {}
-	local skinlib_migrate = false
+	local save_dirty = false
 
 	for skin_id, gold_price in pairs(self._owned_skins) do
 		if SkinLib.debug() then
@@ -77,21 +77,24 @@ function WeaponInventoryManager:load_profile_slot(data)
 			SkinLib.migrate_owned_skin(skin_id, tweak)
 			-- remove from game save
 			self._owned_skins[skin_id] = nil
-			skinlib_migrate = true
+			save_dirty = true
 		end
 		-- fix crash for unknown skins
 		if not tweak then
 			-- self._owned_skins = nil
+			-- keep ownership in the skinlib save, e.g. for custom skins whose mod is not loaded right now
+			SkinLib.migrate_owned_skin(skin_id, { gold_price = gold_price })
             self._owned_skins[skin_id] = nil
+			save_dirty = true
 		end
 	end
 
-	if skinlib_migrate then
+	if save_dirty then
 		SkinLib.Save_owned_skins()
 		managers.savefile:set_resave_required()
 	end
 
-	-- readd unlocked skins from skinlib due to migration from old skinlib save system
+	-- read unlocked skins from skinlib due to migration from old skinlib save system
 	for skin_id, gold_price in pairs(SkinLib._owned_skins) do
 		local tweak = tweak_data.weapon.weapon_skins[skin_id]
 		if tweak then
@@ -121,7 +124,7 @@ function WeaponInventoryManager:save_profile_slot(data)
 			SkinLib.migrate_owned_skin(skin_id, tweak)
 			-- remove from game save
 			--self._owned_skins[skin_id] = nil
-		else
+		elseif tweak then
 			owned_skins[skin_id] = price
 		end
 	end
