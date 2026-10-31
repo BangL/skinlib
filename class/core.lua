@@ -408,7 +408,7 @@ function SkinLib._validate_skin(skin, factory)
     local sl = "[SkinLib][SL_Skin][_validate_skin] "
 
     -- do parts in replaces_parts exist?
-    if skin.replaces_parts and #skin.replaces_parts > 0 then
+    if skin.replaces_parts and next(skin.replaces_parts) then
         for base, replace in pairs(skin.replaces_parts) do
             if not factory.parts[base] then
                 valid = false
@@ -458,7 +458,7 @@ function SkinLib._validate_skin(skin, factory)
     end
 
     -- units in replaces_units loaded?
-    if skin.replaces_units and #skin.replaces_units > 0 then
+    if skin.replaces_units and next(skin.replaces_units) then
         for typ, unit in pairs(skin.replaces_units) do
             if not DB:has(ids["unit"], Idstring(unit)) then
                 valid = false
