@@ -111,26 +111,22 @@ function WeaponInventoryManager:save_profile_slot(data)
 	SkinLib.Load_owned_skins()
 	local state = {
 		melee_weapons = self._weapons[WeaponInventoryManager.CATEGORY_NAME_MELEE],
-		owned_skins = self._owned_skins,
+		-- never the live table (it holds custom skins), filled below
+		owned_skins = {},
 		version_account_wide = self.version_account_wide,
 	}
 
 	-- SkinLib skins from vanilla save data
-	local owned_skins = {}
 	for skin_id, price in pairs(self._owned_skins) do
 		local tweak = tweak_data.weapon.weapon_skins[skin_id]
-		if tweak and tweak.custom then
+		if tweak and (tweak.custom or SkinLib._is_skin_injected(skin_id)) then
 			-- migrate to new save system
 			SkinLib.migrate_owned_skin(skin_id, tweak)
-			-- remove from game save
-			--self._owned_skins[skin_id] = nil
 		elseif tweak then
-			owned_skins[skin_id] = price
+			state.owned_skins[skin_id] = price
 		end
 	end
 
-	if SkinLib.Save_owned_skins() then
-		state.owned_skins = owned_skins
-	end
+	SkinLib.Save_owned_skins()
 	data.WeaponInventoryManager = state
 end
