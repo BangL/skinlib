@@ -67,3 +67,9 @@ end)
 Hooks:PostHook(RaidGUIControlRotateUnit, "_rotate_unit_by", "SkinLib.RaidGUIControlRotateUnit._rotate_unit_by", function (self, yaw_delta)
     self._yaw_delta = yaw_delta
 end)
+
+-- a new drag starts fresh, else the first move jumps by the distance to where the last drag ended
+Hooks:PostHook(RaidGUIControlRotateUnit, "on_mouse_pressed", "SkinLib.RaidGUIControlRotateUnit.on_mouse_pressed", function (self)
+    self._last_y = nil
+    self._last_sound_click_roll = nil
+end)
