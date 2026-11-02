@@ -35,7 +35,9 @@
         <!-- adds roll rotation on weapon preview -->
         <post hook_id="lib/managers/menu/raid_menu/controls/raidguicontrolrotateunit" script_path="hooks/RaidGUIControlRotateUnit.lua" />
         <!-- hotfix for vanilla crash -->
-        <post hook_id="lib/managers/weaponinventorymanager" script_path="hooks/WeaponInventoryManager.lua" />  
+        <post hook_id="lib/managers/weaponinventorymanager" script_path="hooks/WeaponInventoryManager.lua" />
+        <!-- never sync custom skin drops to peers (vanilla loot screen crash) -->
+        <post hook_id="lib/managers/lootdropmanager" script_path="hooks/LootDropManager.lua" />  
         <!-- fix for dp28 crash -->
         <post hook_id="lib/units/weapons/dp28raycastweaponbase" script_path="hooks/DP28RaycastWeaponBase.lua" /> 
         <!-- HUD icon support-->
